@@ -1,7 +1,12 @@
-import { CategoriesPage } from "./features/categories/CategoriesPage";
+import { TransactionsTable } from "./features/transactions/TransactionsTable";
 
 function App() {
-  return <CategoriesPage />;
+  return (
+    <div style={{ padding: "2rem" }}>
+      <h1>Transações</h1>
+      <TransactionsTable />
+    </div>
+  );
 }
 
 export default App;
