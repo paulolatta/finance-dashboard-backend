@@ -1,7 +1,7 @@
-import { AccountsPage } from "./features/accounts/AccountsPage";
+import { CategoriesPage } from "./features/categories/CategoriesPage";
 
 function App() {
-  return <AccountsPage />;
+  return <CategoriesPage />;
 }
 
 export default App;
