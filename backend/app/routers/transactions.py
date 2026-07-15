@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query, status
 
+from datetime import datetime
+from beanie import PydanticObjectId
+
 from app.models.account import Account
 from app.models.category import Category
 from app.models.transaction import Transaction
@@ -38,9 +41,29 @@ def to_read(transaction: Transaction) -> TransactionRead:
 async def list_transactions(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
+    start_date: datetime | None = Query(None),
+    end_date: datetime | None = Query(None),
+    account_id: str | None = Query(None),
+    category_id: str | None = Query(None),
 ):
+    query_filters = {}
+
+    if start_date or end_date:
+        date_filter = {}
+        if start_date:
+            date_filter["$gte"] = start_date
+        if end_date:
+            date_filter["$lte"] = end_date
+        query_filters["date"] = date_filter
+
+    if account_id:
+        query_filters["account.$id"] = PydanticObjectId(account_id)
+
+    if category_id:
+        query_filters["category.$id"] = PydanticObjectId(category_id)
+
     transactions = (
-        await Transaction.find_all()
+        await Transaction.find(query_filters)
         .sort(-Transaction.date)
         .skip(skip)
         .limit(limit)

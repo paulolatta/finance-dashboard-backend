@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TransactionsTable } from "./TransactionsTable";
 import { TransactionForm } from "./TransactionForm";
 import { useCreateTransaction } from "./hooks";
+import { FiltersBar } from "../../components/FiltersBar";
 
 export function TransactionsPage() {
   const [isCreating, setIsCreating] = useState(false);
@@ -16,6 +17,7 @@ export function TransactionsPage() {
   return (
     <div style={{ padding: "2rem" }}>
       <h1>Transações</h1>
+      <FiltersBar />
 
       {isCreating ? (
         <div style={{ marginBottom: "1.5rem", maxWidth: "400px" }}>

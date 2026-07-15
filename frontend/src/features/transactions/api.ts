@@ -14,6 +14,10 @@ export interface TransactionPayload {
 export interface FetchTransactionsParams {
   skip?: number;
   limit?: number;
+  start_date?: string;
+  end_date?: string;
+  account_id?: string | null;
+  category_id?: string | null;
 }
 
 export async function fetchTransactions(
@@ -23,6 +27,10 @@ export async function fetchTransactions(
     params: {
       skip: params.skip ?? 0,
       limit: params.limit ?? 20,
+      start_date: params.start_date,
+      end_date: params.end_date,
+      account_id: params.account_id ?? undefined,
+      category_id: params.category_id ?? undefined,
     },
   });
   return data;

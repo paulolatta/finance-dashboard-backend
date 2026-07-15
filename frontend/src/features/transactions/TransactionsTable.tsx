@@ -9,6 +9,8 @@ import { useTransactions, useDeleteTransaction } from "./hooks";
 import { useAccounts } from "../accounts/hooks";
 import { useCategories } from "../categories/hooks";
 import type { Transaction } from "./types";
+import { useFiltersStore } from "../../stores/filtersStore";
+import { useEffect } from "react";
 
 const columnHelper = createColumnHelper<Transaction>();
 
@@ -16,13 +18,24 @@ export function TransactionsTable() {
   const [page, setPage] = useState(0);
   const limit = 10;
 
+  const { startDate, endDate, accountId, categoryId } = useFiltersStore();
+
   const { data: transactions, isLoading, isPlaceholderData } = useTransactions({
     skip: page * limit,
     limit,
-  });
+    start_date: startDate ? new Date(startDate).toISOString() : undefined,
+    end_date: endDate ? new Date(endDate).toISOString() : undefined,
+    account_id: accountId,
+    category_id: categoryId,
+    });
+
   const { data: accounts } = useAccounts();
   const { data: categories } = useCategories();
   const deleteMutation = useDeleteTransaction();
+
+  useEffect(() => {
+    setPage(0);
+    }, [startDate, endDate, accountId, categoryId]);
 
   // Mapas de ID -> nome, pra não fazer O(n) find() a cada célula renderizada
   const accountMap = useMemo(
