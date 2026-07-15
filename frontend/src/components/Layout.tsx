@@ -17,20 +17,39 @@ export function Layout({ children }: LayoutProps) {
     <div style={{ display: "flex", minHeight: "100vh" }}>
       <nav
         style={{
-          width: "200px",
-          borderRight: "1px solid #eee",
-          padding: "1.5rem 1rem",
+          width: "220px",
+          borderRight: "1px solid var(--color-border)",
+          padding: "var(--space-5) var(--space-4)",
+          background: "var(--color-surface)",
         }}
       >
-        <h2 style={{ fontSize: "1.1rem", marginBottom: "1.5rem" }}>Finance Dashboard</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <h2
+          style={{
+            fontSize: "var(--font-size-lg)",
+            marginBottom: "var(--space-6)",
+            color: "var(--color-primary)",
+          }}
+        >
+          Finance Dashboard
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              style={{ textDecoration: "none", color: "#333", padding: "0.5rem" }}
+              style={{
+                textDecoration: "none",
+                color: "var(--color-text-secondary)",
+                padding: "var(--space-2) var(--space-3)",
+                borderRadius: "var(--radius-sm)",
+                fontSize: "var(--font-size-sm)",
+                fontWeight: 500,
+              }}
               activeProps={{
-                style: { fontWeight: "bold", background: "#f3f4f6", borderRadius: "6px" },
+                style: {
+                  color: "var(--color-primary)",
+                  background: "#EEF2FF",
+                },
               }}
             >
               {item.label}
@@ -39,7 +58,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </nav>
 
-      <main style={{ flex: 1 }}>{children}</main>
+      <main style={{ flex: 1, padding: "var(--space-6)" }}>{children}</main>
     </div>
   );
 }

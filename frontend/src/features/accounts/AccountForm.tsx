@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button, Input, Select } from "../../components/ui";
 import type { Account, AccountType } from "./types";
 
 interface AccountFormProps {
@@ -24,60 +25,40 @@ export function AccountForm({ initialData, onSubmit, onCancel, isSubmitting }: A
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    onSubmit({
-      name,
-      type,
-      initial_balance: parseFloat(initialBalance) || 0,
-    });
+    onSubmit({ name, type, initial_balance: parseFloat(initialBalance) || 0 });
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-      <div>
-        <label>Nome</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={{ display: "block", width: "100%" }}
-        />
-      </div>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}
+    >
+      <Input label="Nome" value={name} onChange={(e) => setName(e.target.value)} required />
 
-      <div>
-        <label>Tipo</label>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value as AccountType)}
-          style={{ display: "block", width: "100%" }}
-        >
-          {ACCOUNT_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select label="Tipo" value={type} onChange={(e) => setType(e.target.value as AccountType)}>
+        {ACCOUNT_TYPES.map((t) => (
+          <option key={t.value} value={t.value}>
+            {t.label}
+          </option>
+        ))}
+      </Select>
 
-      <div>
-        <label>Saldo inicial</label>
-        <input
-          type="number"
-          step="0.01"
-          value={initialBalance}
-          onChange={(e) => setInitialBalance(e.target.value)}
-          style={{ display: "block", width: "100%" }}
-        />
-      </div>
+      <Input
+        label="Saldo inicial"
+        type="number"
+        step="0.01"
+        value={initialBalance}
+        onChange={(e) => setInitialBalance(e.target.value)}
+      />
 
-      <div style={{ display: "flex", gap: "0.5rem" }}>
-        <button type="submit" disabled={isSubmitting}>
+      <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvando..." : "Salvar"}
-        </button>
+        </Button>
         {onCancel && (
-          <button type="button" onClick={onCancel}>
+          <Button type="button" variant="secondary" onClick={onCancel}>
             Cancelar
-          </button>
+          </Button>
         )}
       </div>
     </form>

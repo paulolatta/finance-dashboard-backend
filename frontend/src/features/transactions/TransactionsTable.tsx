@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   createColumnHelper,
   flexRender,
@@ -8,9 +8,9 @@ import {
 import { useTransactions, useDeleteTransaction } from "./hooks";
 import { useAccounts } from "../accounts/hooks";
 import { useCategories } from "../categories/hooks";
-import type { Transaction } from "./types";
 import { useFiltersStore } from "../../stores/filtersStore";
-import { useEffect } from "react";
+import { Button, Card } from "../../components/ui";
+import type { Transaction } from "./types";
 
 const columnHelper = createColumnHelper<Transaction>();
 
@@ -20,6 +20,10 @@ export function TransactionsTable() {
 
   const { startDate, endDate, accountId, categoryId } = useFiltersStore();
 
+  useEffect(() => {
+    setPage(0);
+  }, [startDate, endDate, accountId, categoryId]);
+
   const { data: transactions, isLoading, isPlaceholderData } = useTransactions({
     skip: page * limit,
     limit,
@@ -27,17 +31,11 @@ export function TransactionsTable() {
     end_date: endDate ? new Date(endDate).toISOString() : undefined,
     account_id: accountId,
     category_id: categoryId,
-    });
-
+  });
   const { data: accounts } = useAccounts();
   const { data: categories } = useCategories();
   const deleteMutation = useDeleteTransaction();
 
-  useEffect(() => {
-    setPage(0);
-    }, [startDate, endDate, accountId, categoryId]);
-
-  // Mapas de ID -> nome, pra não fazer O(n) find() a cada célula renderizada
   const accountMap = useMemo(
     () => new Map(accounts?.map((a) => [a.id, a.name]) ?? []),
     [accounts]
@@ -69,10 +67,10 @@ export function TransactionsTable() {
         cell: (info) => {
           const value = info.getValue();
           const type = info.row.original.type;
-          const color = type === "income" ? "green" : "red";
+          const color = type === "income" ? "var(--color-success)" : "var(--color-danger)";
           const sign = type === "income" ? "+" : "-";
           return (
-            <span style={{ color }}>
+            <span style={{ color, fontWeight: 600 }}>
               {sign} R$ {value.toFixed(2)}
             </span>
           );
@@ -80,17 +78,19 @@ export function TransactionsTable() {
       }),
       columnHelper.display({
         id: "actions",
-        header: "Ações",
+        header: "",
         cell: (info) => (
-          <button
+          <Button
+            variant="danger"
             onClick={() => {
               if (confirm("Excluir essa transação?")) {
                 deleteMutation.mutate(info.row.original.id);
               }
             }}
+            style={{ padding: "4px 10px", fontSize: "var(--font-size-sm)" }}
           >
             Excluir
-          </button>
+          </Button>
         ),
       }),
     ],
@@ -103,18 +103,24 @@ export function TransactionsTable() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isLoading) return <p>Carregando transações...</p>;
+  if (isLoading) return <p style={{ color: "var(--color-text-secondary)" }}>Carregando transações...</p>;
 
   return (
-    <div>
+    <Card style={{ padding: 0, overflow: "hidden" }}>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
+            <tr key={headerGroup.id} style={{ background: "var(--color-bg)" }}>
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  style={{ textAlign: "left", borderBottom: "2px solid #ddd", padding: "0.5rem" }}
+                  style={{
+                    textAlign: "left",
+                    padding: "var(--space-3) var(--space-4)",
+                    fontSize: "var(--font-size-sm)",
+                    color: "var(--color-text-secondary)",
+                    fontWeight: 600,
+                  }}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
@@ -124,9 +130,9 @@ export function TransactionsTable() {
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+            <tr key={row.id} style={{ borderTop: "1px solid var(--color-border)" }}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} style={{ padding: "0.5rem", borderBottom: "1px solid #eee" }}>
+                <td key={cell.id} style={{ padding: "var(--space-3) var(--space-4)" }}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -135,18 +141,33 @@ export function TransactionsTable() {
         </tbody>
       </table>
 
-      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", alignItems: "center" }}>
-        <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
+      <div
+        style={{
+          display: "flex",
+          gap: "var(--space-3)",
+          alignItems: "center",
+          padding: "var(--space-3) var(--space-4)",
+          borderTop: "1px solid var(--color-border)",
+        }}
+      >
+        <Button
+          variant="secondary"
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={page === 0}
+        >
           Anterior
-        </button>
-        <span>Página {page + 1}</span>
-        <button
+        </Button>
+        <span style={{ fontSize: "var(--font-size-sm)", color: "var(--color-text-secondary)" }}>
+          Página {page + 1}
+        </span>
+        <Button
+          variant="secondary"
           onClick={() => setPage((p) => p + 1)}
           disabled={isPlaceholderData || (transactions?.length ?? 0) < limit}
         >
           Próxima
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

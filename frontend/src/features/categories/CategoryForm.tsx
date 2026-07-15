@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button, Input, Select } from "../../components/ui";
 import type { Category, CategoryType } from "./types";
 
 interface CategoryFormProps {
@@ -31,71 +32,47 @@ export function CategoryForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    onSubmit({
-      name,
-      type,
-      color,
-      icon: icon.trim() === "" ? null : icon,
-    });
+    onSubmit({ name, type, color, icon: icon.trim() === "" ? null : icon });
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-      <div>
-        <label>Nome</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={{ display: "block", width: "100%" }}
-        />
-      </div>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}
+    >
+      <Input label="Nome" value={name} onChange={(e) => setName(e.target.value)} required />
 
-      <div>
-        <label>Tipo</label>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value as CategoryType)}
-          style={{ display: "block", width: "100%" }}
-        >
-          {CATEGORY_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select label="Tipo" value={type} onChange={(e) => setType(e.target.value as CategoryType)}>
+        {CATEGORY_TYPES.map((t) => (
+          <option key={t.value} value={t.value}>
+            {t.label}
+          </option>
+        ))}
+      </Select>
 
-      <div>
-        <label>Cor</label>
-        <input
-          type="color"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          style={{ display: "block" }}
-        />
-      </div>
+      <Input
+        label="Cor"
+        type="color"
+        value={color}
+        onChange={(e) => setColor(e.target.value)}
+        style={{ padding: "2px", height: "38px" }}
+      />
 
-      <div>
-        <label>Ícone (opcional)</label>
-        <input
-          type="text"
-          value={icon}
-          onChange={(e) => setIcon(e.target.value)}
-          placeholder="ex: shopping-cart"
-          style={{ display: "block", width: "100%" }}
-        />
-      </div>
+      <Input
+        label="Ícone (opcional)"
+        value={icon}
+        onChange={(e) => setIcon(e.target.value)}
+        placeholder="ex: shopping-cart"
+      />
 
-      <div style={{ display: "flex", gap: "0.5rem" }}>
-        <button type="submit" disabled={isSubmitting}>
+      <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvando..." : "Salvar"}
-        </button>
+        </Button>
         {onCancel && (
-          <button type="button" onClick={onCancel}>
+          <Button type="button" variant="secondary" onClick={onCancel}>
             Cancelar
-          </button>
+          </Button>
         )}
       </div>
     </form>

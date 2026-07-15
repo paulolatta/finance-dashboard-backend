@@ -1,44 +1,37 @@
 import { useAccountBalances } from "./hooks";
+import { Card } from "../../components/ui";
 
 export function AccountBalanceCards() {
   const { data, isLoading } = useAccountBalances();
 
-  if (isLoading) return <p>Carregando saldos...</p>;
-
-  if (!data || data.length === 0) {
-    return <p>Nenhuma conta cadastrada.</p>;
-  }
+  if (isLoading) return <p style={{ color: "var(--color-text-secondary)" }}>Carregando saldos...</p>;
+  if (!data || data.length === 0) return <p style={{ color: "var(--color-text-secondary)" }}>Nenhuma conta cadastrada.</p>;
 
   return (
-    <div>
-      <h3>Saldo por conta</h3>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-        {data.map((account) => (
-          <div
-            key={account.account_id}
+    <div style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}>
+      {data.map((account) => (
+        <Card key={account.account_id} style={{ minWidth: "200px", flex: "1" }}>
+          <p
             style={{
-              border: "1px solid #eee",
-              borderRadius: "8px",
-              padding: "1rem",
-              minWidth: "180px",
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text-secondary)",
+              marginBottom: "var(--space-1)",
             }}
           >
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "#666" }}>
-              {account.account_name}
-            </p>
-            <p
-              style={{
-                margin: "0.25rem 0 0",
-                fontSize: "1.3rem",
-                fontWeight: "bold",
-                color: account.current_balance >= 0 ? "#22C55E" : "#EF4444",
-              }}
-            >
-              R$ {account.current_balance.toFixed(2)}
-            </p>
-          </div>
-        ))}
-      </div>
+            {account.account_name}
+          </p>
+          <p
+            style={{
+              fontSize: "var(--font-size-xl)",
+              fontWeight: 700,
+              color:
+                account.current_balance >= 0 ? "var(--color-success)" : "var(--color-danger)",
+            }}
+          >
+            R$ {account.current_balance.toFixed(2)}
+          </p>
+        </Card>
+      ))}
     </div>
   );
 }

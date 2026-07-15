@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useAccounts, useCreateAccount, useDeleteAccount, useUpdateAccount } from "./hooks";
 import { AccountForm } from "./AccountForm";
+import { Button, Card } from "../../components/ui";
 import type { Account } from "./types";
+
+const ACCOUNT_TYPE_LABELS: Record<Account["type"], string> = {
+  checking: "Conta Corrente",
+  savings: "Poupança",
+  credit_card: "Cartão de Crédito",
+  cash: "Dinheiro",
+};
 
 export function AccountsPage() {
   const { data: accounts, isLoading, error } = useAccounts();
@@ -12,13 +20,8 @@ export function AccountsPage() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
-  if (isLoading) return <p>Carregando contas...</p>;
-  if (error) return <p>Erro ao buscar contas: {String(error)}</p>;
-
   function handleCreate(data: { name: string; type: Account["type"]; initial_balance: number }) {
-    createMutation.mutate(data, {
-      onSuccess: () => setIsCreating(false),
-    });
+    createMutation.mutate(data, { onSuccess: () => setIsCreating(false) });
   }
 
   function handleUpdate(data: { name: string; type: Account["type"]; initial_balance: number }) {
@@ -36,59 +39,73 @@ export function AccountsPage() {
   }
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "600px" }}>
-      <h1>Contas</h1>
+    <div style={{ maxWidth: "700px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "var(--space-5)",
+        }}
+      >
+        <h1 style={{ fontSize: "var(--font-size-2xl)" }}>Contas</h1>
+        {!isCreating && <Button onClick={() => setIsCreating(true)}>+ Nova conta</Button>}
+      </div>
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {accounts?.map((account) => (
-          <li
-            key={account.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.5rem 0",
-              borderBottom: "1px solid #eee",
-            }}
-          >
-            {editingAccount?.id === account.id ? (
-              <div style={{ flex: 1 }}>
-                <AccountForm
-                  initialData={editingAccount}
-                  onSubmit={handleUpdate}
-                  onCancel={() => setEditingAccount(null)}
-                  isSubmitting={updateMutation.isPending}
-                />
-              </div>
-            ) : (
-              <>
-                <span>
-                  {account.name} — {account.type} — R$ {account.initial_balance.toFixed(2)}
-                </span>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button onClick={() => setEditingAccount(account)}>Editar</button>
-                  <button onClick={() => handleDelete(account.id)}>Excluir</button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      {isCreating ? (
-        <div style={{ marginTop: "1rem" }}>
-          <h3>Nova conta</h3>
+      {isCreating && (
+        <Card style={{ marginBottom: "var(--space-5)" }}>
+          <h3 style={{ marginBottom: "var(--space-4)" }}>Nova conta</h3>
           <AccountForm
             onSubmit={handleCreate}
             onCancel={() => setIsCreating(false)}
             isSubmitting={createMutation.isPending}
           />
-        </div>
-      ) : (
-        <button onClick={() => setIsCreating(true)} style={{ marginTop: "1rem" }}>
-          + Nova conta
-        </button>
+        </Card>
       )}
+
+      {isLoading && <p style={{ color: "var(--color-text-secondary)" }}>Carregando contas...</p>}
+      {error && <p style={{ color: "var(--color-danger)" }}>Erro ao buscar contas.</p>}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        {accounts?.map((account) =>
+          editingAccount?.id === account.id ? (
+            <Card key={account.id}>
+              <h3 style={{ marginBottom: "var(--space-4)" }}>Editar conta</h3>
+              <AccountForm
+                initialData={editingAccount}
+                onSubmit={handleUpdate}
+                onCancel={() => setEditingAccount(null)}
+                isSubmitting={updateMutation.isPending}
+              />
+            </Card>
+          ) : (
+            <Card
+              key={account.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "var(--space-4)",
+              }}
+            >
+              <div>
+                <p style={{ fontWeight: 600, marginBottom: "2px" }}>{account.name}</p>
+                <p style={{ fontSize: "var(--font-size-sm)", color: "var(--color-text-secondary)" }}>
+                  {ACCOUNT_TYPE_LABELS[account.type]} · R$ {account.initial_balance.toFixed(2)}
+                </p>
+              </div>
+              <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                <Button variant="secondary" onClick={() => setEditingAccount(account)}>
+                  Editar
+                </Button>
+                <Button variant="danger" onClick={() => handleDelete(account.id)}>
+                  Excluir
+                </Button>
+              </div>
+            </Card>
+          )
+        )}
+      </div>
     </div>
   );
 }

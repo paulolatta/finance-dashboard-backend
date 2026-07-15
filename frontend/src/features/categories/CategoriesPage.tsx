@@ -6,7 +6,13 @@ import {
   useUpdateCategory,
 } from "./hooks";
 import { CategoryForm } from "./CategoryForm";
+import { Button, Card } from "../../components/ui";
 import type { Category } from "./types";
+
+const CATEGORY_TYPE_LABELS: Record<Category["type"], string> = {
+  income: "Receita",
+  expense: "Despesa",
+};
 
 export function CategoriesPage() {
   const { data: categories, isLoading, error } = useCategories();
@@ -17,18 +23,13 @@ export function CategoriesPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
-  if (isLoading) return <p>Carregando categorias...</p>;
-  if (error) return <p>Erro ao buscar categorias: {String(error)}</p>;
-
   function handleCreate(data: {
     name: string;
     type: Category["type"];
     color: string;
     icon: string | null;
   }) {
-    createMutation.mutate(data, {
-      onSuccess: () => setIsCreating(false),
-    });
+    createMutation.mutate(data, { onSuccess: () => setIsCreating(false) });
   }
 
   function handleUpdate(data: {
@@ -51,68 +52,89 @@ export function CategoriesPage() {
   }
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "600px" }}>
-      <h1>Categorias</h1>
+    <div style={{ maxWidth: "700px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "var(--space-5)",
+        }}
+      >
+        <h1 style={{ fontSize: "var(--font-size-2xl)" }}>Categorias</h1>
+        {!isCreating && <Button onClick={() => setIsCreating(true)}>+ Nova categoria</Button>}
+      </div>
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {categories?.map((category) => (
-          <li
-            key={category.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.5rem 0",
-              borderBottom: "1px solid #eee",
-            }}
-          >
-            {editingCategory?.id === category.id ? (
-              <div style={{ flex: 1 }}>
-                <CategoryForm
-                  initialData={editingCategory}
-                  onSubmit={handleUpdate}
-                  onCancel={() => setEditingCategory(null)}
-                  isSubmitting={updateMutation.isPending}
-                />
-              </div>
-            ) : (
-              <>
-                <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "50%",
-                      backgroundColor: category.color,
-                      display: "inline-block",
-                    }}
-                  />
-                  {category.name} — {category.type}
-                </span>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button onClick={() => setEditingCategory(category)}>Editar</button>
-                  <button onClick={() => handleDelete(category.id)}>Excluir</button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      {isCreating ? (
-        <div style={{ marginTop: "1rem" }}>
-          <h3>Nova categoria</h3>
+      {isCreating && (
+        <Card style={{ marginBottom: "var(--space-5)" }}>
+          <h3 style={{ marginBottom: "var(--space-4)" }}>Nova categoria</h3>
           <CategoryForm
             onSubmit={handleCreate}
             onCancel={() => setIsCreating(false)}
             isSubmitting={createMutation.isPending}
           />
-        </div>
-      ) : (
-        <button onClick={() => setIsCreating(true)} style={{ marginTop: "1rem" }}>
-          + Nova categoria
-        </button>
+        </Card>
       )}
+
+      {isLoading && <p style={{ color: "var(--color-text-secondary)" }}>Carregando categorias...</p>}
+      {error && <p style={{ color: "var(--color-danger)" }}>Erro ao buscar categorias.</p>}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        {categories?.map((category) =>
+          editingCategory?.id === category.id ? (
+            <Card key={category.id}>
+              <h3 style={{ marginBottom: "var(--space-4)" }}>Editar categoria</h3>
+              <CategoryForm
+                initialData={editingCategory}
+                onSubmit={handleUpdate}
+                onCancel={() => setEditingCategory(null)}
+                isSubmitting={updateMutation.isPending}
+              />
+            </Card>
+          ) : (
+            <Card
+              key={category.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "var(--space-4)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+                <span
+                  style={{
+                    width: "14px",
+                    height: "14px",
+                    borderRadius: "50%",
+                    backgroundColor: category.color,
+                    display: "inline-block",
+                  }}
+                />
+                <div>
+                  <p style={{ fontWeight: 600, marginBottom: "2px" }}>{category.name}</p>
+                  <p
+                    style={{
+                      fontSize: "var(--font-size-sm)",
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
+                    {CATEGORY_TYPE_LABELS[category.type]}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                <Button variant="secondary" onClick={() => setEditingCategory(category)}>
+                  Editar
+                </Button>
+                <Button variant="danger" onClick={() => handleDelete(category.id)}>
+                  Excluir
+                </Button>
+              </div>
+            </Card>
+          )
+        )}
+      </div>
     </div>
   );
 }
