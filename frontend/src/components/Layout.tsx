@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useAuthStore } from "../stores/authStore";
+import { Button } from "./ui";
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,6 +15,14 @@ const NAV_ITEMS = [
 ];
 
 export function Layout({ children }: LayoutProps) {
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate({ to: "/login" });
+  }
+
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       <nav
@@ -21,6 +31,8 @@ export function Layout({ children }: LayoutProps) {
           borderRight: "1px solid var(--color-border)",
           padding: "var(--space-5) var(--space-4)",
           background: "var(--color-surface)",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <h2
@@ -32,7 +44,8 @@ export function Layout({ children }: LayoutProps) {
         >
           Finance Dashboard
         </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", flex: 1 }}>
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.to}
@@ -46,16 +59,17 @@ export function Layout({ children }: LayoutProps) {
                 fontWeight: 500,
               }}
               activeProps={{
-                style: {
-                  color: "var(--color-primary)",
-                  background: "#EEF2FF",
-                },
+                style: { color: "var(--color-primary)", background: "#EEF2FF" },
               }}
             >
               {item.label}
             </Link>
           ))}
         </div>
+
+        <Button variant="secondary" onClick={handleLogout}>
+          Sair
+        </Button>
       </nav>
 
       <main style={{ flex: 1, padding: "var(--space-6)" }}>{children}</main>
