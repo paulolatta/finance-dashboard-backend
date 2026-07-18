@@ -42,7 +42,7 @@ export function CategoryPieChart() {
                 <Cell key={entry.category_id} fill={entry.category_color} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number | string) => `R$ ${Number(value).toFixed(2)}`} />
+            <Tooltip formatter={(value: any) => `R$ ${Number(value).toFixed(2)}`} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
