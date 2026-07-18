@@ -1,3 +1,4 @@
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 
@@ -8,7 +9,7 @@ DOCUMENT_MODELS = [Account, Category, Transaction, User]
 
 
 async def init_db() -> None:
-    client = AsyncIOMotorClient(settings.mongodb_uri)
+    client = AsyncIOMotorClient(settings.mongodb_uri, tlsCAFile=certifi.where())
     database = client[settings.mongodb_db_name]
 
     await init_beanie(database=database, document_models=DOCUMENT_MODELS)

@@ -1,3 +1,4 @@
+import certifi
 from fastapi import APIRouter
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -9,7 +10,9 @@ router = APIRouter(tags=["health"])
 @router.get("/health")
 async def health_check():
     try:
-        client = AsyncIOMotorClient(settings.mongodb_uri, serverSelectionTimeoutMS=3000)
+        client = AsyncIOMotorClient(
+            settings.mongodb_uri, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=3000
+        )
         await client.admin.command("ping")
         db_status = "connected"
     except Exception as e:
